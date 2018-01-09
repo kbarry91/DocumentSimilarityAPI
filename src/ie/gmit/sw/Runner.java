@@ -19,7 +19,9 @@ public class Runner {
 		// threadPoolSize
 		//Thread t1 = new Thread(new FileParser(q, name, shing));
 		//System.out.println(ui.getFileNameA()+ ui.getShingleSize());
-		Thread t1 = new Thread(new FileParser(q, ui.getFileNameA(), ui.getShingleSize()));
+		Thread t1 = new Thread(new FileParser(q, ui.getFileNameA(), ui.getShingleSize()),"A");
+		Thread t2 = new Thread(new FileParser(q, ui.getFileNameB(), ui.getShingleSize()),"B");
+		
 		// Thread t1 = new Thread(new FileParser(q,
 		// ui.getFileNameA(),ui.getShingleSize(), k));
 		
@@ -27,6 +29,7 @@ public class Runner {
 		//Thread t1 = new Thread(new FileParser(q, name, shing));
 
 		t1.start();
+		t2.start();
 	}
 
 }
