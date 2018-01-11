@@ -2,9 +2,13 @@ package ie.gmit.sw;
 
 import java.util.Scanner;
 
+import ie.gmit.sw.similarity.SimilarityIndex;
+
 /**
  * Services class provides a variety of methods that will be used throughout the
  * program
+ * 
+ * @author Kevin Barry
  */
 public class Services {
 
@@ -13,8 +17,8 @@ public class Services {
 	/**
 	 * Method to display a string to console and return a string input
 	 * 
-	 * @return a user entered String
-	 * @param String
+	 * @return output a user entered String
+	 * @param input
 	 *            Input is a string containing the required input
 	 */
 	public static String getInputString(String input) {
@@ -44,7 +48,21 @@ public class Services {
 	public static String showMainMenu = "Document Similarity APi Main Menu\n1: Start Similarity Check\n2: Exit system";
 
 	/**
-	 * @param filename
+	 * Calculates and displays the jaccard index
+	 * 
+	 * @param sim
+	 *            a {@link SimilarityIndex} object
+	 */
+	public static void showJaccardResult(SimilarityIndex sim) {
+		float jaccard = sim.calculateIndex();
+
+		System.out.printf("\nDocument Similarity Complete\nCompared\n\tDocument1 " + sim.getItemASize() + " shingles"
+				+ "\n\tDocument2 " + sim.getItemBSize() + " shingles" + "\nComparisons  : " + sim.getIntersection()
+				+ "\nJaccard Index: %.2f",  jaccard);
+	}
+
+	/**
+	 * @param fileName
 	 *            the file name that needs to be validated
 	 * @return The validated file name
 	 */
