@@ -19,17 +19,16 @@ import ie.gmit.sw.Shingle;
  */
 public class FileParser implements Runnable {
 	private BlockingQueue<Shingle> queue;
-	private String fileName;
-	private int shingleSize, k;
 	private Deque<String> buffer = new LinkedList<>();
-	private int docId;
 
-	// private StringBuffer sb = new StringBuffer();
-	// Constructor
-	// public FileParser(BlockingQueue<Shingle> queue, String fileName, int
-	// shingleSize, int k) {
+	private String fileName;
+
+	private int shingleSize;
+	private int numMinhashes;
+	private int docId ;
+
 	/**
-	 * Instantiates a new FileParser
+	 * Constructor that instantiates a new FileParser
 	 * 
 	 * @param queue
 	 *            a BlockingQueue of Shingle Objects
@@ -37,17 +36,23 @@ public class FileParser implements Runnable {
 	 *            the name of the file to be parsed
 	 * @param shingleSize
 	 *            the specified size of the shingles
+	 * @param docId
+	 *            the unique identification number of the document
 	 */
-	public FileParser(BlockingQueue<Shingle> queue, String fileName, int shingleSize) {
+	public FileParser(BlockingQueue<Shingle> queue, String fileName, int shingleSize, int numMinhashes, int docId) {
 		super();
 		this.queue = queue;
 		this.fileName = fileName;
 		this.shingleSize = shingleSize;
-		// this.k = k;
+		this.numMinhashes = numMinhashes;
+
+		this.docId = docId;
 	}
 
 	@Override
 	public void run() {
+		
+
 		BufferedReader br = null;
 
 		try {
@@ -59,6 +64,7 @@ public class FileParser implements Runnable {
 		String line = "";
 
 		try {
+			int testerInt=0;
 			while ((line = br.readLine()) != null) {
 				if (line.length() > 0) {// skip blank lines
 					String uLine = line.toUpperCase();
@@ -68,7 +74,8 @@ public class FileParser implements Runnable {
 
 					// Add array of words to buffer
 					addWordsToBuffer(words);
-
+					Shingle s = getNextShingle();
+					queue.put(s); 
 					// Shingle s = getNextShingle();
 					// queue.put(s); // Blocking method. Add is not a blocking
 					// method
@@ -78,32 +85,37 @@ public class FileParser implements Runnable {
 					// System.out.print(words.toString() + " Shingle hash:" +
 					// s.getShingleHashCode()+"\n");
 				}
+				
 			} // while
 				// while(shCounter!=buffer.size()){
-
 			/*
 			 * Iterate through buffer until buffer is emptied (buffer.size>0)
 			 * With every iteration a Shingle s is created and added to queue
 			 */
 			for (int i = 0; buffer.size() > 0; i++) {
+				// for debugging
 				// String bufferStr= ((LinkedList<String>) buffer).get(i)+"
 				// "+((LinkedList<String>) buffer).get(i+1)+"
 				// "+((LinkedList<String>) buffer).get(i+2);
-				Shingle s = getNextShingle();
-				queue.put(s); // Blocking method. Add is not a blocking
+
+				Shingle s = getNextShingle();///////////////////////////////////////////////
+				queue.put(s); // Blocking method. Add is not a blocking//////////////////////////
+
+				// for debugging
 				// System.out.println( bufferStr+" Shingle hash:" +
 				// s.getShingleHashCode()+" buffer size:"+buffer.size()+"
 				// i="+i+"\n");
-				System.out.print("\tShingle hash:" + s.getShingleHashCode() + "\tbuffer size:" + buffer.size() + " i="
-						+ i + "\n"); // used for debugging
+				//System.out.print("\tShingle hash:" + s.getShingleHashCode() + "\tbuffer size:" + buffer.size() + " i="
+					//	+ i + " Docid:" + docId + "\n"); // used for debugging
+				testerInt++;
+				System.out.println("in buuffer  for>>>>>>>testerInt" + testerInt);
 
 			}
+
 			// }
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -117,6 +129,7 @@ public class FileParser implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("FINISHED RUN in reader");
 
 	}// run
 
@@ -144,20 +157,21 @@ public class FileParser implements Runnable {
 		StringBuffer sb = new StringBuffer();
 		int counter = 0;
 
-		while (counter < shingleSize) {
+		while (counter < shingleSize-1) {
 			if (buffer.peek() != null) {
-				System.out.print(buffer.peek() + " "); // Used for debugging
+				System.out.print(buffer.peek() + "<"+docId+">"); // Used for debugging
 				sb.append(buffer.poll());
 				counter++;
 			}
 		}
-
+System.out.print("\t hashode:"+sb.toString().hashCode()+ " docID"+ docId+"\n");
 		if (sb.length() > 0) {
 			if (sb.length() == shingleSize) {
 				sb.delete(0, sb.length() - 1);
 			}
 			return (new Shingle(docId, sb.toString().hashCode()));
 		} else {
+			   sb.delete(0, sb.length());
 			return (null);
 		}
 	}
@@ -174,10 +188,11 @@ public class FileParser implements Runnable {
 			Shingle s = getNextShingle();
 			if (s != null) {
 				queue.put(s);
-			} else {
-				queue.put(new Poisin(docId, 0));
-			}
+			} //else {
+			//	queue.put(new Poisin(docId, 0));
+			//}
 		}
+		queue.put(new Poisin(0, 0));
 	}
 
 }
